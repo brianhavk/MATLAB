@@ -1,0 +1,42 @@
+GdesNum = 8;
+GdesDen = [1 10 0];
+Gdes = tf(GdesNum,GdesDen);
+Tdes = feedback(Gdes, 1, -1);
+Cdes = Tdes.Numerator;
+Rdes = Tdes.Denominator;
+Cdes= cell2mat(Cdes);
+Rdes = cell2mat(Rdes);
+
+%%%%%%%%%% Closed loop system bandwidth %%%%%%%%%%
+syms w
+%Cdes = Cdes(1)*(i^2)*(w^2) + Cdes(2)*i*w + Cdes(3);
+%Rdes = Rdes(1)*(i^2)*(w^2) + Rdes(2)*i*w + Rdes(3);
+Mag_Cdes = ((Cdes(3) + Cdes(1)*(i^2)*(w^2))^2 + 
+(Cdes(2)*i*w)^2)^(1/2);
+Mag_Rdes = ((Rdes(3) + Rdes(1)*(i^2)*(w^2))^2 + 
+(Rdes(2)*i*w)^2)^(1/2);
+Mag_Tdes = Mag_Cdes / Mag_Rdes;
+wc_roots = double(solve(Mag_Tdes==(1/sqrt(2)), w));
+wc = wc_roots(2);
+Ancho_de_Banda = sprintf('El ancho de banda del sistema de 
+control es aproximadamente %.3f rad/seg', wc);
+disp(Ancho_de_Banda)
+
+%%%%%%%%%% Sample ranges %%%%%%%%%%
+%Método 1%
+Tsubs1_min = pi / (6*wc);
+Tsubs1_max = pi / (4*wc);
+Tsubs1_max = round(Tsubs1_max, 4);
+Periodo_de_Muestreo_1 = sprintf('El per%codo de muestreo por el 
+m%ctodo 1 esta aproximadamente por el rango de %.4f seg<= Ts 
+<=%.4f seg', 237, 233, Tsubs1_min, Tsubs1_max);
+disp(Periodo_de_Muestreo_1)
+%Método 2%
+wn_rda = Rdes(2) / 2;
+tsubs = 4 / wn_rda;
+Tsubs2_min = 0.0625*tsubs;
+Tsubs2_max = 0.125*tsubs;
+Periodo_de_Muestreo_2 = sprintf('El per%codo de muestreo por el 
+m%ctodo 2 esta aproximadamente por el rango de %.4f seg<= Ts 
+<=%.4f seg', 237, 233, Tsubs2_min, Tsubs2_max);
+disp(Periodo_de_Muestreo_2)
